@@ -1,0 +1,23 @@
+# Helm Globals
+instance: dev
+hostName: "my-fancy-load-balancer.domain.org"
+registryAddress: "723915311050.dkr.ecr.eu-west-1.amazonaws.com"
+
+# Deployment settings
+cpuLimit: 50m
+memoryLimit: 120Mi
+cpuRequest: 20m
+memoryRequest: 100Mi
+minReplicas: 1
+maxReplicas: 3
+cpuUtilizationPercentage: 10
+replicas: 1
+updateStrategy: RollingUpdate
+
+# Image
+imageName: docker-weather
+imageTag: "1.0"
+imagePullPolicy: IfNotPresent
+
+# Specific app settings
+apiKey: OTk1YThlYTY4NjBmYmE2YjA5Yzg1MGUwYzcwOTQ3YWY=

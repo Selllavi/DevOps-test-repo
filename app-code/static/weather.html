@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <title>Current weather in Moscow</title>
+</head>
+<body>
+<p></p>
+<h1>Current weather in Moscow:</h1>
+<p></p>
+<table>
+    <thead>
+    <tr>
+        <th colspan="2">Main information</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Temp</td>
+        <td>{{.Main.Temp}}</td>
+    </tr>
+    <tr>
+        <td>FeelsLike</td>
+        <td>{{.Main.FeelsLike}}</td>
+    </tr>
+    <tr>
+        <td>TempMin</td>
+        <td>{{.Main.TempMin}}</td>
+    </tr>
+    <tr>
+        <td>TempMax</td>
+        <td>{{.Main.TempMax}}</td>
+    </tr>
+    <tr>
+        <td>Pressure</td>
+        <td>{{.Main.Pressure}}</td>
+    </tr>
+    <tr>
+        <td>Humidity</td>
+        <td>{{.Main.Humidity}}</td>
+    </tr>
+    <tr>
+        <td>SeaLevel</td>
+        <td>{{.Main.SeaLevel}}</td>
+    </tr>
+    <tr>
+        <td>GrndLevel</td>
+        <td>{{.Main.GrndLevel}}</td>
+    </tr>
+    </tbody>
+</table>
+
+<table>
+    <thead>
+    <tr>
+        <th colspan="2">Wind information</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Speed</td>
+        <td>{{.Wind.Speed}}</td>
+    </tr>
+    <tr>
+        <td>Def</td>
+        <td>{{.Wind.Def}}</td>
+    </tr>
+    <tr>
+        <td>Gust</td>
+        <td>{{.Wind.Gust}}</td>
+    </tr>
+    </tbody>
+</table>
+<table>
+    <thead>
+    <tr>
+        <th colspan="2">Nature information</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Visibility</td>
+        <td>{{.Visibility}}</td>
+    </tr>
+    <tr>
+        <td>Clouds</td>
+        <td>{{.Clouds.All}}</td>
+    </tr>
+    <tr>
+        <td>Sunrise</td>
+        <td>{{.Sys.Sunrise}}</td>
+    </tr>
+    <tr>
+        <td>Sunset</td>
+        <td>{{.Sys.Sunrise}}</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

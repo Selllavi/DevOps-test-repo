@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "weather.name" . }}
+  labels: {{ include "weather.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: {{ .Values.updateStrategy }}
+  selector:
+    matchLabels: {{ include "weather.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "weather.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: weather
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          image: "{{ .Values.registryAddress }}/{{ .Values.imageName }}:{{ default .Chart.AppVersion .Values.imageTag }}"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "weather.name" . }}
+                  key: api_key
+          resources:
+            requests:
+              cpu: {{ .Values.cpuRequest }}
+              memory: {{ .Values.memoryRequest }}
+            limits:
+              cpu: {{ .Values.cpuLimit }}
+              memory: {{ .Values.memoryLimit }}
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 3
+            failureThreshold: 3
+            timeoutSeconds: 3
+            periodSeconds: 15
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /health
+            initialDelaySeconds: 3
+            failureThreshold: 3
+            timeoutSeconds: 3
+            periodSeconds: 15
+            successThreshold: 1
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "weather.name" . }}
+  labels: {{ include "weather.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "weather.name" . }}
+  minReplicas: {{ .Values.minReplicas }}
+  maxReplicas: {{ .Values.maxReplicas }}
+  targetCPUUtilizationPercentage: {{ .Values.cpuUtilizationPercentage }}

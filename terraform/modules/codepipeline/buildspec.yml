@@ -1,0 +1,44 @@
+version: 0.2
+
+phases:
+  install: # Install AWS cli, kubectl (needed for Helm) and Helm
+    commands:
+      - yum install -y awscli git
+      - curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.12.7/2019-03-27/bin/linux/amd64/aws-iam-authenticator
+      - chmod +x ./aws-iam-authenticator
+      - mkdir -p ~/bin && cp ./aws-iam-authenticator ~/bin/aws-iam-authenticator && export PATH=~/bin:$PATH
+      - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv ./kubectl /usr/local/bin/kubectl
+      - wget https://get.helm.sh/helm-v3.8.0-linux-amd64.tar.gz -O helm.tar.gz; tar -xzf helm.tar.gz
+      - chmod +x ./linux-amd64/helm
+      - mv ./linux-amd64/helm /usr/local/bin/helm
+  pre_build: # Add kubeconfig to access to EKS cluster
+    commands:
+      - echo set settings for Kubernetes...
+      - "mkdir ~/.kube/"
+      - "touch ~/.kube/config"
+      - "chmod 600 ~/.kube/config"
+      - aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $EKS_CLUSTER
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION  | docker login --username AWS --password-stdin  $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+  build: # Build docker image and package helm chart
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - cd app-code
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Building the chart release...
+      - cd ../helm-charts
+      - helm package .
+  post_build: # Push docker image to ECR and packaged helm chart to ECR, upgrade helm-chart release on EKS
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Pushing the Chart release...
+      - helm push $CHART_REPO_NAME-$CHART_TAG.tgz oci://$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/
+      - echo Execute Chart installation
+      - helm pull oci://$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CHART_REPO_NAME --version $CHART_TAG
+      - helm upgrade $CHART_RELEASE_NAME --install oci://$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CHART_REPO_NAME --version $CHART_TAG -n $HELM_NAMESPACE

@@ -1,0 +1,14 @@
+name: chart-weather
+apiVersion: v1
+type: application
+appVersion: v1
+description: Helm Chart including all services for weather app
+version: 1.0.0
+keywords:
+  - weather-project
+  - weather
+maintainers:
+  - name: Anna Zyrina
+    email: anne.zyrina@google.com
+deprecated: false
+

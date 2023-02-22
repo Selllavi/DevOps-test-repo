@@ -1,0 +1,9 @@
+<hr>
+<p> Thanks for using Weather App </p>
+<p>
+Email: anne.zyrina@yandex.ru
+</p>
+<p>
+Weather endpoint: <a href="http://{{ .Values.hostName }}"> http://{{ .Values.hostName }}
+</p>
+
